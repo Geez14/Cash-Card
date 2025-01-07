@@ -18,7 +18,7 @@ class CashCardApplicationTests {
 
     @Test
     void shouldReturnACashCardWhenDataIsSaved() {
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity("/card/cash", String.class);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity("/cashcards/99", String.class);
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
