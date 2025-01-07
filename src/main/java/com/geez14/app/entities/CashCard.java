@@ -1,4 +1,3 @@
 package com.geez14.app.entities;
 
-public class CashCard {
-}
+public record CashCard(Long id, Double amount) {}
