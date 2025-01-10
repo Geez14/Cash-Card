@@ -17,7 +17,7 @@ public class CashCardController {
     /**
      * CRUD {
      * Operation: Read,
-     * EndPoint: cashcards/{id}
+     * EndPoint: /cashcards/{id}
      * HTTPMethod: GET
      * }
      *
