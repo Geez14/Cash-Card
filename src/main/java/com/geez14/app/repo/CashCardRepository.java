@@ -1,4 +1,7 @@
-package com.geez14.app;
+package com.geez14.app.repo;
 
-public class CashCardRepository {
+import com.geez14.app.entities.CashCard;
+import org.springframework.data.repository.CrudRepository;
+
+public interface CashCardRepository extends CrudRepository<CashCard, Long> {
 }
