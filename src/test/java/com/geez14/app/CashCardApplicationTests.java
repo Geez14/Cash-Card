@@ -3,6 +3,7 @@ package com.geez14.app;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.geez14.app.entities.CashCard;
+import com.geez14.app.util.Debug;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.assertj.core.api.Assertions;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -152,9 +155,62 @@ class CashCardApplicationTests {
     @Test
     @DirtiesContext
     void shouldDeleteACashCard() {
-        // going to delete card with id 99
-        restTemplate.withBasicAuth("Mxtylish", "password1234").delete("/cashcards/99");
-        ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/99", HttpMethod.DELETE, null, Void.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        ResponseEntity<String> getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldNotDeleteACashCardThatDoesNotExist() {
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/1000", HttpMethod.DELETE, null, Void.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldNotAllowDeletionOfCashCardsTheyDoNotOwn() {
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/102", HttpMethod.DELETE, null, Void.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        ResponseEntity<String> getResponse = restTemplate.withBasicAuth("kumar2A", "password1234").getForEntity("/cashcards/102", String.class);
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    // @Read: https://github.com/spring-projects/spring-framework/issues/15256
+    @Test
+    @DirtiesContext
+    void shouldUpdateACashCard() {
+        CashCard updatedCashCard = new CashCard(null, 1.2D, null);
+        HttpEntity<CashCard> requestEntity = new HttpEntity<>(updatedCashCard);
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/99", HttpMethod.PUT, requestEntity, Void.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/99", HttpMethod.GET, null, String.class);
+        Debug.log("checking the getResponse after updating", getResponse.getBody());
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        int id = documentContext.read("$.id");
+        double amount = documentContext.read("$.amount");
+        Assertions.assertThat(amount).isEqualTo(updatedCashCard.amount());
+    }
+
+    @Test
+    void shouldFailToUpdateAnOtherOwnerCashCard() {
+        CashCard updatedCashCard = new CashCard(null, 69.0D, null);
+        HttpEntity<CashCard> requestEntity = new HttpEntity<>(updatedCashCard);
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/102", HttpMethod.PUT, requestEntity, Void.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldFailToPassNullForUpdatingCashCard() {
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/99", HttpMethod.PUT, null, Void.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void shouldFailToPassNullForCreatingCashCard() {
+        ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards", HttpMethod.POST, null, Void.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 }
