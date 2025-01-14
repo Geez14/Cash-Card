@@ -75,11 +75,6 @@ public class CashCardController {
         return ResponseEntity.created(locator).build();
     }
 
-//    @GetMapping
-//    private ResponseEntity<Iterable<CashCard>> findAll() {
-//        return ResponseEntity.ok(cashCardRepository.findAll());
-//    }
-
     @GetMapping
     private ResponseEntity<Iterable<CashCard>> getCashCards(Pageable pageable, Principal principal) {
         Page<CashCard> page = cashCardRepository.findAllByOwnerIgnoreCase(principal.getName(),
