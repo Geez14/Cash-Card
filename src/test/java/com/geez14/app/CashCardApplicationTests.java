@@ -31,18 +31,16 @@ class CashCardApplicationTests {
     @Test
     void shouldReturnACashCardWhenDataIsSaved() {
         // getForEntity is Get Request on "uri" and get object CashCard.class
-        ResponseEntity<CashCard> responseEntity = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", CashCard.class);
+        ResponseEntity<String> responseEntity = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // ObjectMapper mapper = new ObjectMapper();
         // String jsonResponse = mapper.writeValueAsString(responseEntity.getBody());
-        // DocumentContext documentContext = JsonPath.parse(jsonResponse);
-        // Number id = documentContext.read("$.id");
-
-        CashCard cashCard = responseEntity.getBody();
-        Assertions.assertThat(cashCard).isNotNull();
-        Assertions.assertThat(cashCard.id()).isEqualTo(99);
-        Assertions.assertThat(cashCard.amount()).isEqualTo(123.45);
+        DocumentContext documentContext = JsonPath.parse(responseEntity.getBody());
+        int id = documentContext.read("$.id");
+        double amount = documentContext.read("$.amount");
+        Assertions.assertThat(id).isEqualTo(99L);
+        Assertions.assertThat(amount).isEqualTo(123.45);
     }
 
     @Test
