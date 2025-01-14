@@ -185,7 +185,6 @@ class CashCardApplicationTests {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
         ResponseEntity<String> getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards/99", HttpMethod.GET, null, String.class);
-        Debug.log("checking the getResponse after updating", getResponse.getBody());
         Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());

@@ -2,7 +2,6 @@ package com.geez14.app.controllers;
 
 import com.geez14.app.entities.CashCard;
 import com.geez14.app.repo.CashCardRepository;
-import com.geez14.app.util.Debug;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
