@@ -2,6 +2,7 @@ package com.geez14.app;
 
 import com.geez14.app.entities.CashCard;
 import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -20,9 +21,16 @@ public class CashCardJsonTests {
     @Autowired
     JacksonTester<CashCard[]> jsonList;
 
+    private CashCard[] cashCards;
+
+    @BeforeEach
+    void setUp() {
+        cashCards = Arrays.array(new CashCard(99L, 123.45, "Mxtylish"), new CashCard(100L, 1.00, "Mxtylish"), new CashCard(101L, 150.0, "Mxtylish"));
+    }
+
     @Test
     void cashCardSerializationTest() throws IOException {
-        CashCard cashCard = new CashCard(99L, 127.45D);
+        CashCard cashCard = cashCards[0];
 
         assertThat(json.write(cashCard)).isStrictlyEqualToJson("expected.json");
 
@@ -33,46 +41,38 @@ public class CashCardJsonTests {
         assertThat(json.write(cashCard)).hasJsonPathNumberValue("@.amount");
 
         // test weather the "amount" value have same value as 127.45
-        assertThat(json.write(cashCard)).extractingJsonPathValue("@.amount").isEqualTo(127.45);
+        assertThat(json.write(cashCard)).extractingJsonPathValue("@.amount").isEqualTo(123.45);
     }
 
     @Test
     void cashCardDeserializationTest() throws IOException {
-//        String expected = "{\r\n\"id\": 99,\r\n\"amount\": 127.45\r\n}";
+//        String expected = "{\r\n\"id\": 99,\r\n\"amount\": 127.45\r\n,\r\n\"owner\": \"Mxtylish\"}";
         String expected = """
                 {
                     "id": 99,
-                    "amount": 127.45
+                    "amount": 123.45,
+                    "owner": "Mxtylish"
                 }
                 """;
-        assertThat(json.parse(expected)).isEqualTo(new CashCard(99L, 127.45D));
+        assertThat(json.parse(expected)).isEqualTo(cashCards[0]);
         assertThat(json.parseObject(expected).id()).isEqualTo(99L);
-        assertThat(json.parseObject(expected).amount()).isEqualTo(127.45);
+        assertThat(json.parseObject(expected).amount()).isEqualTo(123.45);
     }
 
     @Test
     void cashCardListSerializationTest() throws IOException {
-        CashCard[] cashCards = Arrays.array(
-                new CashCard(99L, 123.45),
-                new CashCard(100L, 1.00),
-                new CashCard(101L, 150.00));
         assertThat(jsonList.write(cashCards)).isEqualToJson("list.json");
     }
 
     @Test
     void cashCardListDeserializationTest() throws IOException {
-        CashCard[] cashCards = Arrays.array(
-                new CashCard(99L, 123.45),
-                new CashCard(100L, 1.00),
-                new CashCard(101L, 150.00));
-        String expected =
-                """
-                                [
-                                   {"id": 99, "amount": 123.45},
-                                   {"id": 100, "amount": 1.00},
-                                   {"id": 101, "amount": 150.00}
-                                ]
-                        """;
+        String expected = """
+                        [
+                           {"id": 99, "amount": 123.45, "owner": "Mxtylish"},
+                           {"id": 100, "amount": 1.00, "owner": "Mxtylish"},
+                           {"id": 101, "amount": 150.00, "owner": "Mxtylish"}
+                        ]
+                """;
         assertThat(jsonList.parse(expected)).isEqualTo(cashCards);
     }
 }
