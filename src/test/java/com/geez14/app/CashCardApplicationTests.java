@@ -76,9 +76,7 @@ class CashCardApplicationTests {
 
     @Test
     void shouldReturnAllCashCardsWhenListIsRequested() {
-        ResponseEntity<String> response = restTemplate
-                .withBasicAuth("Mxtylish", "password1234")
-                .getForEntity("/cashcards", String.class);
+        ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards", String.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -148,6 +146,15 @@ class CashCardApplicationTests {
     @Test
     void shouldNotAllowAccessToCashCardsTheyDoNotOwn() {
         ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/102", String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldDeleteACashCard() {
+        // going to delete card with id 99
+        restTemplate.withBasicAuth("Mxtylish", "password1234").delete("/cashcards/99");
+        ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }

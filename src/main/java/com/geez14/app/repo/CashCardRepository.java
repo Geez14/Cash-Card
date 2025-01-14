@@ -10,8 +10,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.Optional;
 
 public interface CashCardRepository extends CrudRepository<CashCard, Long>, PagingAndSortingRepository<CashCard, Long> {
-    @Query("SELECT * from CASH_CARD WHERE ID=:cardNumber AND OWNER=:owner")
+    @Query("SELECT * FROM CASH_CARD WHERE ID=:cardNumber AND OWNER=:owner")
     Optional<CashCard> findByIdAndOwner(Long cardNumber, String owner);
 
     Page<CashCard> findAllByOwnerIgnoreCase(String owner, PageRequest pageRequest);
+
+    boolean existsByIdAndOwner(Long requestedId, String name);
 }
