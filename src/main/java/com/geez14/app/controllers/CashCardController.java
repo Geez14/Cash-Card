@@ -72,8 +72,8 @@ public class CashCardController {
      * @return org.springframework.http.ResponseEntity
      */
     @PostMapping
-    private ResponseEntity<Void> create(@RequestBody CashCard newCashCard, UriComponentsBuilder ucb, Principal principal) {
-        CashCard cashCardWithOwner = new CashCard(newCashCard.id(), newCashCard.amount(), principal.getName());
+    private ResponseEntity<Void> createNewCashCard(@RequestBody CashCard newCashCard, UriComponentsBuilder ucb, Principal principal) {
+        CashCard cashCardWithOwner = new CashCard(null, newCashCard.amount(), principal.getName());
         CashCard savedCashCard = cashCardRepository.save(cashCardWithOwner);
         URI locator = ucb
                 .path("/cashcards/{id}")
