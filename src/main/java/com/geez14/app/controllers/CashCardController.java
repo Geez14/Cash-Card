@@ -2,6 +2,7 @@ package com.geez14.app.controllers;
 
 import com.geez14.app.entities.CashCard;
 import com.geez14.app.repo.CashCardRepository;
+import com.geez14.app.util.Debug;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -96,6 +97,18 @@ public class CashCardController {
                         pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
                 ));
         return ResponseEntity.ok(page.getContent());
+    }
+
+    @PutMapping("/{requestedId}")
+    private ResponseEntity<Void> putCashCard(@PathVariable Long requestedId, @RequestBody CashCard newCashCard, Principal principal) {
+        // This doesn't solve the issue, if the card doesn't exist to return 404 error!
+        // CashCard cashCardWithOwner = new CashCard(requestedId, newCashCard.amount(), principal.getName());
+        // cashCardRepository.save(cashCardWithOwner);
+        if (cashCardRepository.existsByIdAndOwner(requestedId, principal.getName())) {
+            cashCardRepository.save(new CashCard(requestedId, newCashCard.amount(), principal.getName()));
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     /**
