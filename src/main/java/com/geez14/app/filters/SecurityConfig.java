@@ -21,7 +21,7 @@ import java.util.List;
 public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors((cors)->cors.configurationSource((corsConfigurationSource()))) // allow-all-origins
+        http.cors((cors) -> cors.configurationSource((corsConfigurationSource()))) // allow-all-origins
                 .authorizeHttpRequests
                         (
                                 request -> request
@@ -54,7 +54,11 @@ public class SecurityConfig {
                 .password(passwordEncoder.encode("password123456"))
                 .roles("ADMIN")
                 .build();
-        return new InMemoryUserDetailsManager(mxtylish, hawkThuWa);
+        UserDetails kumar2A = users.username("kumar2A")
+                .password(passwordEncoder.encode("password1234"))
+                .roles("CARD-OWNER")
+                .build();
+        return new InMemoryUserDetailsManager(mxtylish, hawkThuWa, kumar2A);
     }
 
     @Bean
