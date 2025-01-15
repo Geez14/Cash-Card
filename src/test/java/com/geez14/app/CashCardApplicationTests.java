@@ -29,7 +29,7 @@ class CashCardApplicationTests {
     private TestRestTemplate restTemplate;
 
     @Test
-    void shouldReturnACashCardWhenDataIsSaved() {
+    void shouldReturnACashCardWhenRequested() {
         // getForEntity is Get Request on "uri" and get object CashCard.class
         ResponseEntity<String> responseEntity = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
