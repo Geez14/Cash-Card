@@ -1,9 +1,6 @@
 package com.geez14.app;
 
-//import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.geez14.app.entities.CashCard;
-import com.geez14.app.util.Debug;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.assertj.core.api.Assertions;
