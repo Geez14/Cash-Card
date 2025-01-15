@@ -57,6 +57,7 @@ public class CashCardJsonTests {
         assertThat(json.parse(expected)).isEqualTo(cashCards[0]);
         assertThat(json.parseObject(expected).id()).isEqualTo(99L);
         assertThat(json.parseObject(expected).amount()).isEqualTo(123.45);
+        assertThat(json.parseObject(expected).owner()).isEqualTo("Mxtylish");
     }
 
     @Test
