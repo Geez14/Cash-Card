@@ -11,7 +11,6 @@ import org.springframework.boot.test.json.JacksonTester;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.List;
 
 @JsonTest
 public class CashCardJsonTests {
