@@ -32,7 +32,7 @@ public class SecurityConfig {
                                 Customizer.withDefaults()
                         ).csrf
                         (
-                                (CsrfConfigurer<HttpSecurity> csrf) -> csrf.disable()
+                                (CsrfConfigurer::disable)
                         );
         return http.build();
     }
@@ -61,6 +61,7 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager(mxtylish, hawkThuWa, kumar2A);
     }
 
+    // TODO Remove hard-coded configuration
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
