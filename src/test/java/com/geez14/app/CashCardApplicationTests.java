@@ -1,10 +1,8 @@
 package com.geez14.app;
 
 import com.geez14.app.entities.CashCard;
-import com.geez14.app.util.Debug;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -38,8 +35,6 @@ class CashCardApplicationTests {
         ResponseEntity<String> responseEntity = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // ObjectMapper mapper = new ObjectMapper();
-        // String jsonResponse = mapper.writeValueAsString(responseEntity.getBody());
         DocumentContext documentContext = JsonPath.parse(responseEntity.getBody());
         int id = documentContext.read("$.id");
         double amount = documentContext.read("$.amount");
@@ -189,7 +184,6 @@ class CashCardApplicationTests {
         Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
-        int id = documentContext.read("$.id");
         double amount = documentContext.read("$.amount");
         Assertions.assertThat(amount).isEqualTo(updatedCashCard.amount());
     }

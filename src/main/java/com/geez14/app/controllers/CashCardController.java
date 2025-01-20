@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.support.CompositeUriComponentsContributor;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -20,11 +19,9 @@ import java.util.Optional;
 @RequestMapping(path = "/cashcards")
 public class CashCardController {
     private final CashCardRepository cashCardRepository;
-    private final CompositeUriComponentsContributor compositeUriComponentsContributor;
 
-    private CashCardController(CashCardRepository cashCardRepository, CompositeUriComponentsContributor compositeUriComponentsContributor) {
+    private CashCardController(CashCardRepository cashCardRepository) {
         this.cashCardRepository = cashCardRepository;
-        this.compositeUriComponentsContributor = compositeUriComponentsContributor;
     }
 
     /**
@@ -44,10 +41,7 @@ public class CashCardController {
         // the below code is written by AI not me
         // return cashCard.map(ResponseEntity::ok).orElseGet(ResponseEntity.notFound()::build);
         // this is my code!
-        if (cashCard.isPresent()) {
-            return ResponseEntity.ok(cashCard.get());
-        }
-        return ResponseEntity.notFound().build();
+        return cashCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
@@ -96,9 +90,6 @@ public class CashCardController {
 
     @PutMapping("/{requestedId}")
     private ResponseEntity<Void> putCashCard(@PathVariable Long requestedId, @RequestBody CashCard newCashCard, Principal principal) {
-        // This doesn't solve the issue, if the card doesn't exist to return 404 error!
-        // CashCard cashCardWithOwner = new CashCard(requestedId, newCashCard.amount(), principal.getName());
-        // cashCardRepository.save(cashCardWithOwner);
         if (cashCardRepository.existsByIdAndOwner(requestedId, principal.getName())) {
             cashCardRepository.save(new CashCard(requestedId, newCashCard.amount(), principal.getName()));
             return ResponseEntity.noContent().build();
