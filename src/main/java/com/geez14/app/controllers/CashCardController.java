@@ -126,4 +126,13 @@ public class CashCardController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @DeleteMapping
+    private ResponseEntity<Iterable<Long>> deleteSelectedCashCards(@RequestBody Iterable<Long> data, Principal principal) {
+        List<Long> validData = cashCardRepository.getIdsByRequestedIdsAndOwner(data, principal.getName());
+        if (validData.isEmpty())
+            return ResponseEntity.notFound().build();
+        cashCardRepository.deleteAllById(validData);
+        return ResponseEntity.ok(validData);
+    }
 }
