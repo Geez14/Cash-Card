@@ -1,8 +1,10 @@
 package com.geez14.app;
 
 import com.geez14.app.entities.CashCard;
+import com.geez14.app.util.Debug;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
@@ -14,8 +16,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 /**
  * Test cas will run in alphanumeric order of method names
@@ -208,5 +212,53 @@ class CashCardApplicationTests {
     void shouldFailToPassNullForCreatingCashCard() {
         ResponseEntity<Void> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards", HttpMethod.POST, null, Void.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldDeletedSelectedCards() {
+        Iterable<Long> ids = List.of(99L, 100L, 101L);
+        HttpEntity<Iterable<Long>> data = new HttpEntity<>(ids);
+        ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards", HttpMethod.DELETE, data, String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray received = documentContext.read("$[*]");
+        Assertions.assertThat(received.size()).isEqualTo(3);
+        // testing after deleting
+        ResponseEntity<String> getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/100", String.class);
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/101", String.class);
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldDeleteSelectedCardsThatExist() {
+        Iterable<Long> ids = List.of(99L, 200L, 201L);
+        HttpEntity<Iterable<Long>> data = new HttpEntity<>(ids);
+
+        ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards", HttpMethod.DELETE, data, String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray received = documentContext.read("$[*]");
+        Assertions.assertThat(received.size()).isEqualTo(1);
+
+        int id = documentContext.read("$[0]");
+        Assertions.assertThat(id).isEqualTo(99);
+        ResponseEntity<String> getResponse = restTemplate.withBasicAuth("Mxtylish", "password1234").getForEntity("/cashcards/99", String.class);
+        Assertions.assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldFailToDeleteSelectedCardsThatDoNotExist() {
+        Iterable<Long> ids = List.of(199L, 200L, 201L);
+        HttpEntity<Iterable<Long>> data = new HttpEntity<>(ids);
+
+        ResponseEntity<String> response = restTemplate.withBasicAuth("Mxtylish", "password1234").exchange("/cashcards", HttpMethod.DELETE, data, String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
     }
 }
